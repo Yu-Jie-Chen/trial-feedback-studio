@@ -2,3 +2,8 @@ __pycache__/
 *.py[cod]
 .venv/
 .env
+
+# Local archive payloads and receipts contain student data
+*.archive.json
+*.archive.receipt.json
+.wenyuan-workbench.json

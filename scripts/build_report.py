@@ -132,8 +132,18 @@ if __name__ == '__main__':
     group.add_argument('--output-dir', type=Path, help='Automatic filename destination')
     parser.add_argument('--report-type', choices=REPORT_TYPES)
     parser.add_argument('--template', type=Path)
+    parser.add_argument('--archive-manifest', type=Path, help='Generate then archive; pending payload path')
+    parser.add_argument('--student-id', help='Workbench student ID (optional if name is unique)')
     args = parser.parse_args()
     data = json.loads(Path(args.input).read_text(encoding='utf-8-sig'))
     if args.report_type is not None:
         data['report_type'] = args.report_type
-    print(build(data, args.output, args.template, args.output_dir))
+    output = build(data, args.output, args.template, args.output_dir)
+    print(output)
+    if args.archive_manifest:
+        from archive_to_workbench import main as archive
+        command = ['--type', 'diagnostic-feedback' if report_kind(data) == 'diagnostic' else 'trial-feedback',
+            '--input', str(args.input), '--file', str(output), '--manifest', str(args.archive_manifest)]
+        if args.student_id:
+            command += ['--student-id', args.student_id]
+        raise SystemExit(archive(command))

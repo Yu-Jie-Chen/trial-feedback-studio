@@ -325,3 +325,11 @@ trial-feedback-studio/
 The Python builder formats reviewed content using a retained Word reference, including typography, a top-right brand logo, and a centered footer graphic. Meeting access and video analysis depend on the host agent; they are not implemented by the builder. Start with [`SKILL.md`](SKILL.md).
 
 两种报告共用同一模板、正文结构、字体和 Logo，仅报告标题与自动文件名随提示词切换；日期栏统一使用“课程日期”。
+
+## 自动归档到文源教学工作台
+
+成品检查通过后，Agent 可以直接归档到对应学生，无需再手动选择文件上传。支持本地工作台源码版及含统一接口的安装版：反馈进入学生专属资料，试卷分析进入学情诊断库，错题进入学生错题本与待审题库。诊断反馈还可关联对应试卷分析。
+
+一次配置本机连接后，Skill 会完成学生匹配、提交和回执检查。学生重名时需指定 ID；工作台没启动时先保留文件和待归档清单，之后原样重试不会重复入库。新题目/诊断不会自动发布。
+
+具体配置、命令和失败重试见 [工作台自动归档](references/workbench-archive.md)。客户端只依赖 Python 标准库，学生文件、归档清单、回执和令牌不上传 GitHub。
