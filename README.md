@@ -1,6 +1,6 @@
-# 试听反馈 · Trial Feedback Studio
+# 试听课反馈与学情诊断 · Trial Feedback Studio
 
-> 把一次试听课的录屏、逐字稿和纪要，整理成一份**有依据、有学生自评、有后续建议**的 Word 学情反馈报告。
+> 根据一次课程的**录屏、逐字稿和纪要**，整理成一份 Word 版**试听课反馈报告或学情诊断反馈报告**。
 
 **项目名：** `trial-feedback-studio`　|　**作者：** [Yujie Chen](https://github.com/Yu-Jie-Chen)　|　**仓库：** [Yu-Jie-Chen/trial-feedback-studio](https://github.com/Yu-Jie-Chen/trial-feedback-studio)
 
@@ -8,9 +8,22 @@
 ![交付格式](https://img.shields.io/badge/output-Word%20DOCX-2B579A)
 ![技能入口](https://img.shields.io/badge/agent-SKILL.md-orange)
 
+## 它是做什么的
+
+这是一个面向老师的课程反馈整理技能。提供课程录屏，以及对应的逐字稿和纪要，Agent 将结合课堂内容、学生自述与实际作答表现，分析学习情况，整理后续建议，最终生成可编辑的 Word 报告。
+
+它适用于两类场景：
+
+| 场景 | 报告重点 | 交付形式 |
+|---|---|---|
+| 试听课反馈 | 本次试听内容、学生表现、学习困难和后续教学建议 | Word 试听课反馈报告 |
+| 学情诊断反馈 | 学生当前基础、具体卡点、学习习惯及改进方向 | Word 学情诊断反馈报告 |
+
+两类报告都围绕同一条流程：**课程资料 → 学情分析 → 反馈建议 → Word 文档**。报告不是简单复制会议纪要，而是把课程中与学生学习有关的信息整理成家长和老师能直接使用的反馈。
+
 ## 它解决什么问题
 
-试听课结束后，老师往往还要花时间整理一份家长能看懂的反馈：
+试听课或学情诊断课结束后，老师往往还要花时间整理一份家长能看懂的反馈：
 
 - 学生成绩、复习进度和个人目标散落在课堂对话里；
 - 会议纪要能概括内容，却不一定区分学生自评与教师判断；
@@ -21,7 +34,7 @@
 **Trial Feedback Studio** 将资料核对、学科分析与固定版式结合起来，让老师把时间用在判断和反馈上。
 
 ```text
-会议回顾链接 / 录屏 / 逐字稿 / 纪要
+课程录屏 + 对应逐字稿 + 纪要（通过回顾链接或本地文件提供）
                 ↓
 确认学生、学科、课程日期和资料范围
                 ↓
@@ -29,7 +42,7 @@
                 ↓
 形成学情判断与针对性建议
                 ↓
-按参考模板生成 Word
+按参考模板生成 Word 试听课反馈 / 学情诊断反馈报告
                 ↓
 核对事实 + 检查每页版面 → 教师复核后使用
 ```
@@ -112,7 +125,7 @@
 | 五、日常执行与家长配合建议 | 日常怎么落实，家长可以怎样支持 |
 | 六、总结 | 当前基础与下一阶段的主要方向 |
 
-默认交付文件：`学生姓名同学学科试听课学情分析报告.docx`。证据笔记、JSON 和版面检查文件属于工作过程，除非用户需要，不作为最终交付物。
+最终交付为可编辑的 `.docx` 文档。试听课场景使用“试听课反馈报告”，诊断课场景使用“学情诊断反馈报告”，标题与文件名应匹配本次用途。当前排版脚本默认生成“学生姓名同学学科试听课学情分析报告”标题；用于学情诊断场景时，Agent 需在生成后将标题与文件名调整为相应名称，再检查版面。证据笔记、JSON 和版面检查文件属于工作过程，除非用户需要，不作为最终交付物。
 
 ## 快速开始
 
@@ -147,6 +160,15 @@ DeepSeek Agent 的具体技能目录和加载方式以实际宿主配置为准�
 
 支持自动技能选择的宿主，也可直接使用“给我按照这个录屏生成试听课反馈报告”。
 
+### 学情诊断反馈示例
+
+```text
+这是一次学情诊断课的录屏、逐字稿和纪要。
+请结合学生自评、课堂作答和老师的分析，整理一份 Word 学情诊断反馈报告。
+沿用文源教育的字体、段落和 Logo 版式。
+回顾文件：在这里粘贴链接
+```
+
 ### 其他调用示例
 
 **数学试听：**
@@ -168,7 +190,7 @@ DeepSeek Agent 的具体技能目录和加载方式以实际宿主配置为准�
 **已有本地资料：**
 
 ```text
-这是试听课逐字稿和纪要，请生成试听反馈 Word 报告。
+这是课程录屏及对应逐字稿和纪要，请生成试听课反馈或学情诊断反馈 Word 报告。
 学生姓名：填写姓名；科目：填写科目；试听日期：填写日期。
 ```
 
@@ -214,7 +236,7 @@ python scripts/build_report.py --input report.json --output output/report.docx
 
 ```mermaid
 flowchart TD
-    A[接收链接或课程资料] --> B[确认学生 学科 日期]
+    A[接收课程录屏 逐字稿与纪要] --> B[确认学生 学科 日期]
     B --> C[读取纪要与逐字稿]
     C --> D[回看录屏关键片段]
     D --> E[整理自评与课堂证据]
@@ -222,7 +244,7 @@ flowchart TD
     F --> G[审阅报告 JSON]
     G --> H[继承模板生成 Word]
     H --> I[核对事实与逐页检查版面]
-    I --> J[交付 Word 并说明必要限制]
+    I --> J[交付试听课或学情诊断反馈 Word]
 ```
 
 交付前重点检查：
@@ -259,9 +281,9 @@ trial-feedback-studio/
 
 ## 常见问题
 
-**只有腾讯会议链接，可以使用吗？**
+**录屏、逐字稿和纪要都在同一个回顾链接中，可以使用吗？**
 
-可以作为输入。能否直接读取取决于宿主浏览器能力和会议分享权限。遇到登录或权限限制，需要完成正常授权或提供导出的逐字稿、纪要。
+可以，回顾链接是课程资料的入口，Agent 会尝试读取其中的录屏、逐字稿和纪要。能否直接读取取决于宿主浏览器能力和会议分享权限。遇到登录或权限限制，需要完成正常授权或提供导出的逐字稿、纪要。
 
 **会自动看完整个录屏吗？**
 
@@ -269,7 +291,7 @@ trial-feedback-studio/
 
 **能否只用纪要生成？**
 
-可以在资料足够时整理报告，但应保留与证据相符的措辞。仅有摘要无法证明孩子独立完成了题目，不能虚构具体课堂表现。
+完整流程以录屏、逐字稿和纪要为依据。若暂时只有纪要，可以先整理有限的文字反馈，但不能将其描述为已完成录屏分析；需要课堂表现诊断时，应补充原始资料。仅有摘要无法证明孩子独立完成了题目。
 
 **为什么没有自动加四周提分计划？**
 
@@ -291,10 +313,10 @@ trial-feedback-studio/
 
 ## 相关项目
 
-[错题整理 · Mistake Question Studio](https://github.com/Yu-Jie-Chen/mistake-question-studio)：用于整理错题、解析与复习卡。试听反馈侧重学情沟通，错题整理侧重具体题目的复习材料；两者可由老师按需要配合使用，目前没有自动联动接口。
+[错题整理 · Mistake Question Studio](https://github.com/Yu-Jie-Chen/mistake-question-studio)：用于整理错题、解析与复习卡。本项目侧重试听课与学情诊断反馈，错题整理侧重具体题目的复习材料；两者可由老师按需要配合使用，目前没有自动联动接口。
 
 ## English summary
 
-**Trial Feedback Studio** is an agent skill for creating Chinese trial-lesson feedback reports in Word for physics, mathematics, and English. It guides the agent through reviewing meeting notes, transcripts, and relevant recording segments, distinguishing student self-assessment from observed performance, and drafting practical learning recommendations.
+**Trial Feedback Studio** is an agent skill for creating Chinese trial-lesson feedback and learning-diagnostic feedback reports in Word for physics, mathematics, and English. It guides the agent through reviewing meeting notes, transcripts, and relevant recording segments, distinguishing student self-assessment from observed performance, and drafting practical learning recommendations.
 
 The Python builder formats reviewed content using a retained Word reference, including typography, a top-right brand logo, and a centered footer graphic. Meeting access and video analysis depend on the host agent; they are not implemented by the builder. Start with [`SKILL.md`](SKILL.md).
