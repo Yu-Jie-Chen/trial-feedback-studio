@@ -125,7 +125,7 @@
 | 五、日常执行与家长配合建议 | 日常怎么落实，家长可以怎样支持 |
 | 六、总结 | 当前基础与下一阶段的主要方向 |
 
-最终交付为可编辑的 `.docx` 文档。试听课场景使用“试听课反馈报告”，诊断课场景使用“学情诊断反馈报告”，标题与文件名应匹配本次用途。当前排版脚本默认生成“学生姓名同学学科试听课学情分析报告”标题；用于学情诊断场景时，Agent 需在生成后将标题与文件名调整为相应名称，再检查版面。证据笔记、JSON 和版面检查文件属于工作过程，除非用户需要，不作为最终交付物。
+最终交付为可编辑的 `.docx` 文档。试听课场景使用“试听课反馈报告”，诊断课场景使用“学情诊断反馈报告”，标题与文件名应匹配本次用途。脚本按 `report_type` 自动匹配标题、文件名与文档标题属性：`trial` 为试听课反馈，`diagnostic` 为学情诊断反馈，默认 `trial`。证据笔记、JSON 和版面检查文件属于工作过程，除非用户需要，不作为最终交付物。
 
 ## 快速开始
 
@@ -201,7 +201,9 @@ DeepSeek Agent 的具体技能目录和加载方式以实际宿主配置为准�
 ```bash
 cd trial-feedback-studio
 python -m pip install -r requirements.txt
-python scripts/build_report.py --input report.json --output output/report.docx
+python scripts/build_report.py --input report.json --output-dir output
+# 覆盖 JSON 中的类型，生成诊断报告
+python scripts/build_report.py --input report.json --report-type diagnostic --output-dir output
 ```
 
 `report.json` 需要自行准备，格式见 [数据结构示例](references/schema.md)。主要字段如下：
@@ -210,6 +212,7 @@ python scripts/build_report.py --input report.json --output output/report.docx
 |---|---|
 | `student` | 学生姓名 |
 | `subject` | `物理`、`数学`或`英语` |
+| `report_type` | `trial` 或 `diagnostic`，默认 `trial` |
 | `teacher` | 授课教师，可省略 |
 | `lesson_date` | 试听日期，格式 `YYYY-MM-DD` |
 | `report_date` | 报告日期，格式 `YYYY-MM-DD` |
@@ -320,3 +323,5 @@ trial-feedback-studio/
 **Trial Feedback Studio** is an agent skill for creating Chinese trial-lesson feedback and learning-diagnostic feedback reports in Word for physics, mathematics, and English. It guides the agent through reviewing meeting notes, transcripts, and relevant recording segments, distinguishing student self-assessment from observed performance, and drafting practical learning recommendations.
 
 The Python builder formats reviewed content using a retained Word reference, including typography, a top-right brand logo, and a centered footer graphic. Meeting access and video analysis depend on the host agent; they are not implemented by the builder. Start with [`SKILL.md`](SKILL.md).
+
+两种报告共用同一模板、正文结构、字体和 Logo，仅报告标题与自动文件名随提示词切换；日期栏统一使用“课程日期”。

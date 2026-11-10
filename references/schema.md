@@ -7,6 +7,7 @@ JSON结构示例（示例内容不是任何真实学生的诊断）：
 {
   "student": "示例学生",
   "subject": "数学",
+  "report_type": "diagnostic",
   "teacher": "某老师",
   "lesson_date": "2026-11-08",
   "report_date": "2026-11-10",
@@ -35,3 +36,14 @@ JSON结构示例（示例内容不是任何真实学生的诊断）：
 复杂数学式按需用Word公式对象补充，不将LaTeX源码直接放入正文。普通反馈尽量用清楚的语言说明方法，不必大段抄题。
 
 版面验证优先使用当前环境已有DOCX渲染工具。如Windows已安装Word，可通过合法的本地文档自动化导出临时PDF；不要关闭用户已打开的文档。LibreOffice可用时遵守宿主限制，使用独立用户配置目录。用PDF渲染器查看每一页；只有文本提取或页数检查不构成视觉验证。缺少宋体/黑体时应提示字体替代情况，不声称字体完全一致。
+
+## 类型与自动命名
+
+report_type 支持 trial（试听课反馈报告）和 diagnostic（学情诊断反馈报告），省略默认 trial，非法值报错。lesson_date 均表示课程日期，统一显示为课程日期。两种类型共用同一正文结构和模板，脚本不改写正文。
+
+```sh
+python scripts/build_report.py --input report.json --output-dir output
+python scripts/build_report.py --input report.json --report-type diagnostic --output-dir output
+```
+
+CLI --report-type 优先于 JSON。自动文件名与标题对应，非法路径字符改为下划线。不指定输出选项时写入当前目录；--output 可显式指定 .docx 文件名，与 --output-dir 互斥，自定义文件名不影响标题。已存在的文件不会覆盖。

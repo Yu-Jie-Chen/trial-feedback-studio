@@ -9,6 +9,20 @@ from docx import Document
 from docx.oxml.ns import qn
 
 ROOT = Path(__file__).resolve().parents[1]
+REPORT_TYPES = {'trial': ('试听课反馈报告', '课程日期'), 'diagnostic': ('学情诊断反馈报告', '课程日期')}
+
+def report_kind(data):
+    kind = data.get('report_type', 'trial')
+    if not isinstance(kind, str) or kind not in REPORT_TYPES:
+        raise ValueError('report_type must be trial or diagnostic')
+    return kind
+
+def report_title(data):
+    return f"{data['student'].strip()}同学{data['subject']}{REPORT_TYPES[report_kind(data)][0]}"
+
+def report_filename(data):
+    return re.sub(r'[<>:"/\\|?*\x00-\x1f]', '_', report_title(data)).rstrip(' .') + '.docx'
+
 
 def required_string(obj, key):
     value = obj.get(key)
@@ -21,6 +35,7 @@ def date_text(value):
     return f'{d.year}年{d.month}月{d.day}日'
 
 def validate(data):
+    report_kind(data)
     for key in ('student', 'subject', 'lesson_date', 'report_date'):
         required_string(data, key)
     if data['subject'] not in ('物理', '数学', '英语'):
@@ -43,8 +58,14 @@ def validate(data):
         if blocks[-1]['type'] == 'subheading':
             raise ValueError('a subheading must have following content')
 
-def build(data, output, template=None):
+def build(data, output=None, template=None, output_dir=None):
     validate(data)
+    if output is not None and output_dir is not None:
+        raise ValueError('Use output or output_dir, not both')
+    title = report_title(data)
+    output = Path(output) if output is not None else Path(output_dir or '.') / report_filename(data)
+    if output.suffix.lower() != '.docx':
+        raise ValueError('output must end in .docx')
     doc = Document(template or ROOT / 'assets/reference.docx')
     samples = {}
     for p in doc.paragraphs:
@@ -78,10 +99,10 @@ def build(data, output, template=None):
             p.paragraph_format.keep_with_next = True
         p.paragraph_format.widow_control = True
         return p
-    add(f"{data['student']}同学{data['subject']}试听课学情分析报告", 'Title')
+    add(title, 'Title')
     teacher = data.get('teacher', '').strip()
     add('文源教育' + (f' ｜ 授课教师：{teacher}' if teacher else ''), 'Subtitle')
-    add(f"试听日期：{date_text(data['lesson_date'])} ｜ 报告日期：{date_text(data['report_date'])}", 'Subtitle')
+    add(f"{REPORT_TYPES[report_kind(data)][1]}：{date_text(data['lesson_date'])} ｜ 报告日期：{date_text(data['report_date'])}", 'Subtitle')
     for section in data['sections']:
         add(section['heading'], 'Heading 1')
         for block in section['blocks']:
@@ -91,8 +112,8 @@ def build(data, output, template=None):
             for e in list(root.iter(qn('w:' + tag))):
                 e.getparent().remove(e)
     # Replace old author metadata. The retained source stays unchanged.
-    doc.core_properties.title = f"{data['student']}同学{data['subject']}试听课学情分析报告"
-    doc.core_properties.subject = '试听课学情分析'
+    doc.core_properties.title = title
+    doc.core_properties.subject = REPORT_TYPES[report_kind(data)][0]
     doc.core_properties.author = teacher or '文源教育'
     doc.core_properties.last_modified_by = '文源教育'
     doc.core_properties.comments = ''
@@ -106,8 +127,13 @@ def build(data, output, template=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
-    parser.add_argument('--output', required=True)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--output', help='Custom .docx filename')
+    group.add_argument('--output-dir', type=Path, help='Automatic filename destination')
+    parser.add_argument('--report-type', choices=REPORT_TYPES)
     parser.add_argument('--template', type=Path)
     args = parser.parse_args()
     data = json.loads(Path(args.input).read_text(encoding='utf-8-sig'))
-    print(build(data, args.output, args.template))
+    if args.report_type is not None:
+        data['report_type'] = args.report_type
+    print(build(data, args.output, args.template, args.output_dir))
