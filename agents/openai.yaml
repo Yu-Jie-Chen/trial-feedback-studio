@@ -1,0 +1,4 @@
+interface:
+  display_name: "试听反馈报告工作室"
+  short_description: "从试听录屏与会议记录生成带文源品牌版式的物理数学英语反馈报告"
+  default_prompt: "使用 $trial-feedback-studio，按照这个录屏生成试听课反馈报告 Word 文档。"
